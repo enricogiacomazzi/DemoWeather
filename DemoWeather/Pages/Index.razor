@@ -8,7 +8,13 @@
 
 <div id="map"></div>
 
-<div style="margin-top: 20px;">@weatherData?.city.name</div>
+<h2 style="margin-top: 20px;">@weatherData?.city.name</h2>
+
+
+<div id="chart-container">
+    <canvas id="chart"></canvas>
+</div>
+
 
 
 @code{
@@ -32,13 +38,26 @@
     [JSInvokable]
     public async Task GetWeatherDataAsync(float lat, float lng)
     {
-        var apiKey = "9f2edc45c0a984fb5e7ca44d54d781be";
+        var apiKey = "";
         using (var http = new HttpClient())
         {
             var req = $"https://api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lng}&cnt={7}&appid={apiKey}";
             weatherData = await req.GetJsonAsync<WeatherModel>();
             StateHasChanged();
+            await DrawBars();
         }
+    }
+
+    public async Task DrawBars()
+    {
+        var temps = weatherData.list
+            .Select(x => x.temp.day - 273)
+            .Select(x => Math.Round(x))
+            .ToList();
+
+        var dates = temps.Select((x, i) => DateTime.Today.AddDays(i).ToString("dd/MM/yyyy")).ToList();
+
+        await jsRuntime.InvokeVoidAsync("drawChart", temps, dates);
     }
 
 

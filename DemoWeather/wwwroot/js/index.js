@@ -10,7 +10,7 @@ function loadMap(handler) {
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
-        accessToken: 'pk.eyJ1Ijoic2lyamFjayIsImEiOiJjazliMG1yaXcwZjByM25ueXppNHplY2YyIn0.8Op4YDuYexp0y2NiDoESRQ'
+        accessToken: ''
     }).addTo(mymap);
 
     let marker;
@@ -22,9 +22,37 @@ function loadMap(handler) {
             marker.setLatLng(latlng);
         }
 
-        handler.invokeMethodAsync('GetWeatherDataAsync', latlng.lat, latlng.lng).then(x => {
-            console.log(x);
-        })
+        handler.invokeMethodAsync('GetWeatherDataAsync', latlng.lat, latlng.lng);
     })
+}
+
+
+function drawChart(data, labels) {
+    debugger;
+    const ctx = document.getElementById('chart').getContext('2d');
+    const color = Chart.helpers.color;
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Dataset 1',
+                backgroundColor: color('rgb(75, 192, 192)').alpha(0.5).rgbString(),
+                borderColor: 'rgb(75, 192, 192)',
+                borderWidth: 1,
+                data
+            }]
+
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: false,
+            }
+        }
+    });
 }
 
