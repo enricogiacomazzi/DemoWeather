@@ -1,0 +1,45 @@
+﻿@page "/"
+@inject IJSRuntime jsRuntime
+@using System.Net.Http
+@using Flurl
+@using Flurl.Http
+@using DemoWeather.Models
+
+
+<div id="map"></div>
+
+<div style="margin-top: 20px;">@weatherData?.city.name</div>
+
+
+@code{
+
+
+    public WeatherModel weatherData { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var handler = DotNetObjectReference.Create(this);
+            await jsRuntime.InvokeVoidAsync("loadMap", handler);
+        }
+
+
+    }
+
+
+
+    [JSInvokable]
+    public async Task GetWeatherDataAsync(float lat, float lng)
+    {
+        var apiKey = "9f2edc45c0a984fb5e7ca44d54d781be";
+        using (var http = new HttpClient())
+        {
+            var req = $"https://api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lng}&cnt={7}&appid={apiKey}";
+            weatherData = await req.GetJsonAsync<WeatherModel>();
+            StateHasChanged();
+        }
+    }
+
+
+}
